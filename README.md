@@ -57,8 +57,8 @@ Create a configuration file at `~/.dvheconverter/config.json` (optional):
 
 ```json
 {
-  "output_directory": "/path/to/default/output",
-  "temp_directory": "/path/to/temp",
+  "output_dir": "/path/to/default/output",
+  "temp_dir": "/path/to/temp",
   "logging_level": "info"
 }
 ```

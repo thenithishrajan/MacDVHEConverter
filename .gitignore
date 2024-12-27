@@ -1,4 +1,6 @@
 output/*
 temp/*
+tmp/*
 .DS_Store
 out*
+config.json

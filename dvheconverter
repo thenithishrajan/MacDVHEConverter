@@ -6,6 +6,28 @@ show_help() {
     exit 1
 }
 
+# Function to load configuration
+load_config() {
+    # Set config file path relative to the current directory (where the script is executed)
+    config_file="./config.json"
+    
+    if [ -f "$config_file" ]; then
+        # Read values from the config file
+        output_dir=$(jq -r '.output_dir' "$config_file")
+        temp_dir=$(jq -r '.temp_dir' "$config_file")
+        logging_level=$(jq -r '.logging_level' "$config_file")
+        
+        # Expand ~ to the user's home directory
+        output_dir=$(eval echo "$output_dir")
+        temp_dir=$(eval echo "$temp_dir")
+    else
+        # Default values if config.json doesn't exist
+        output_dir="./output"
+        temp_dir="./temp"
+        logging_level="info"
+    fi
+}
+
 # Function to display a progress bar
 show_progress() {
     local progress=$1
@@ -20,6 +42,9 @@ show_progress() {
 
     echo -ne "[${bar}${spaces}] ${progress}%"
 }
+
+# Load configuration
+load_config
 
 # Parse command-line arguments
 while [ $# -gt 0 ]; do
@@ -59,11 +84,6 @@ fi
 # Handle output directory (default to './output' if not specified)
 if [ -z "$output_dir" ]; then
     output_dir="./output"
-fi
-
-# Handle temp directory (default to './temp' if not specified)
-if [ -z "$temp_dir" ]; then
-    temp_dir="./temp"
 fi
 
 # If input is a single file
