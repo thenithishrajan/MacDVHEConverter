@@ -2,7 +2,7 @@
 
 # Function to display usage instructions
 show_help() {
-    echo "Usage: ./dvheconverter --videos-path /path/to/mkv/files"
+    echo "Usage: ./dvheconverter [-i /path/to/file.mkv | --dir /path/to/mkv/files]"
     exit 1
 }
 
@@ -27,7 +27,11 @@ while [ $# -gt 0 ]; do
         -h|--help)
             show_help
             ;;
-        --videos-path)
+        -i|--input-file)
+            input_file="$2"
+            shift 2
+            ;;
+        --dir)
             input_dir="$2"
             shift 2
             ;;
@@ -38,33 +42,47 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-# Check if input_dir is provided
-if [ -z "$input_dir" ]; then
-    echo "Error: --videos-path is required."
+# Check if either --dir or -i is provided
+if [ -z "$input_file" ] && [ -z "$input_dir" ]; then
+    echo "Error: Either --dir or -i is required."
     show_help
 fi
+# If input is a single file
+if [ -n "$input_file" ]; then
+    if [ ! -f "$input_file" ]; then
+        echo "Error: File '$input_file' does not exist."
+        exit 1
+    fi
+    files=("$input_file")
+    total=1
+    output_dir="./output"  # Store in the main output directory
+else
+    # If input is a directory
+    if [ ! -d "$input_dir" ]; then
+        echo "Error: Directory '$input_dir' does not exist."
+        exit 1
+    fi
+    # Collect all MKV files (case-insensitive), sorted alphabetically, into an array
+    files=()
+    while IFS= read -r file; do
+        files+=("$file")
+    done < <(find "$input_dir" -maxdepth 1 -type f \( -iname "*.mkv" \) | sort)
+    total=${#files[@]}
+    
+    # Check if no MKV files are found
+    if [ "$total" -eq 0 ]; then
+        echo "No MKV files found in '$input_dir'"
+        exit 1
+    fi
 
-# Verify that the input directory exists
-if [ ! -d "$input_dir" ]; then
-    echo "Error: Directory '$input_dir' does not exist."
-    exit 1
+    # Set output directory to a subdirectory with the name of the input directory
+    output_dir="./output/$(basename "$input_dir")"
+    mkdir -p "$output_dir"  # Create the subdirectory
 fi
 
-# Collect all MKV files (case-insensitive), sorted alphabetically, into an array
-files=()
-while IFS= read -r file; do
-    files+=("$file")
-done < <(find "$input_dir" -maxdepth 1 -type f \( -iname "*.mkv" \) | sort)
 
-total=${#files[@]}
 completed=0
 errors=0
-
-# Check if no MKV files are found
-if [ "$total" -eq 0 ]; then
-    echo "No MKV files found in '$input_dir'"
-    exit 1
-fi
 
 # Initialize statuses array
 statuses=()
@@ -73,8 +91,15 @@ for ((i=0; i<total; i++)); do
 done
 
 # Create temporary and output directories
-temp_dir="./temp"
-output_dir="./output"
+# Determine if input is a file or directory
+if [ -d "$input_dir" ]; then
+    # If it's a directory, create a temp subdirectory with the directory name
+    base_dir=$(basename "$input_dir")
+    temp_dir="./temp/$base_dir"
+else
+    # If it's a single file, use "temp" directly
+    temp_dir="./temp"
+fi
 mkdir -p "$temp_dir" "$output_dir"
 
 # Function to display the current status
@@ -193,7 +218,7 @@ process_file() {
     display_status
 }
 
-# Process each MKV file sequentially
+# Process each MKV file
 i=0  # Start with first file
 while [ $i -lt $total ]; do
     process_file "$i"  # Process file i

@@ -1,2 +1,4 @@
 output/*
+temp/*
 .DS_Store
+out*
