@@ -142,7 +142,7 @@ mkdir -p "$temp_dir" "$output_dir"
 display_status() {
     printf "\033c"
     echo "========================================="
-    echo "DVHEConverter - MKV to MP4 Conversion Tool"
+    echo "DVHEConverter - DV MKV to MP4 Conversion Tool"
     echo "========================================="
     echo ""
     echo "Total Files : $total"
