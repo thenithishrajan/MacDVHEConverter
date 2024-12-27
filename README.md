@@ -2,58 +2,38 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-macOS-blue.svg)](https://www.apple.com/macos)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![Code Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)]()
 
-> Professional-grade MKV to MP4 converter with Dolby Vision HDR support, designed for high-performance media processing pipelines.
+> A macOS tool for converting MKV files to MP4 format with Dolby Vision HDR support.
 
 ## 🚀 Key Features
 
-- **High-Performance Processing**: Optimized for maximum throughput with minimal quality loss
-- **Dolby Vision Support**: Full HDR profile preservation (Profile 5)
-- **Batch Processing**: Intelligent directory scanning and parallel processing capabilities
-- **Real-time Monitoring**: Advanced progress tracking with detailed status reporting
-- **Error Recovery**: Robust error handling with automatic recovery mechanisms
-- **Resource Management**: Efficient temporary file handling and cleanup
-- **Format Preservation**: Maintains original video quality and metadata
+- **MKV to MP4 Conversion**: Convert MKV files while preserving video quality
+- **Dolby Vision Support**: HDR profile preservation (Profile 5)
+- **Batch Processing**: Process multiple MKV files from a directory
+- **Real-time Status**: Live progress tracking with visual progress bar
+- **Resource Management**: Automatic temporary file handling and cleanup
 
 ## 📋 Requirements
 
-### System Requirements
-
-- **OS**: macOS 10.15 (Catalina) or later
-- **CPU**: Intel i5/Apple M1 or higher recommended
-- **RAM**: Minimum 8GB, 16GB recommended
-- **Storage**: SSD recommended for optimal performance
-
 ### Dependencies
 
-- **FFmpeg** (4.4+)
-- **mp4demuxer_mac** (latest version)
-- **mp4muxer_mac** (latest version)
+- **FFmpeg**
+- **mp4demuxer_mac**
+- **mp4muxer_mac**
 
 ## 💻 Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/dvheconverter.git
-
-# Navigate to directory
-cd dvheconverter
-
 # Set execution permissions
 chmod +x dvheconverter
 
-# Install dependencies (using Homebrew)
+# Install FFmpeg if not already installed
 brew install ffmpeg
-
-# Verify installation
-./dvheconverter --version
 ```
 
 ## 🔧 Configuration
 
-Create a configuration file at `~/.dvheconverter/config.json` (optional):
+The tool supports an optional configuration file at `./config.json`:
 
 ```json
 {
@@ -78,28 +58,11 @@ Create a configuration file at `~/.dvheconverter/config.json` (optional):
 ./dvheconverter -i input.mkv --output-dir /custom/output
 ```
 
-### Advanced Options
-
-```bash
-# Custom processing with specific options
-./dvheconverter -i input.mkv \
-  --output-dir /custom/output \
-  --temp-dir /custom/temp
-```
-
-### Environment Variables
-
-```bash
-# Set default configuration
-export DVHE_OUTPUT_DIR="/path/to/output"
-export DVHE_TEMP_DIR="/path/to/temp"
-export DVHE_LOG_LEVEL="debug"
-```
-
-## 🎯 Command Line Interface
+## 🎯 Command Line Options
 
 | Option             | Description                          | Default  |
 | ------------------ | ------------------------------------ | -------- |
+| `-h, --help`       | Show help message                    | -        |
 | `-i, --input-file` | Input MKV file path                  | -        |
 | `--dir`            | Input directory for batch processing | -        |
 | `--output-dir`     | Output directory path                | ./output |
@@ -107,119 +70,73 @@ export DVHE_LOG_LEVEL="debug"
 
 ## 🔄 Processing Pipeline
 
-1. **Initialization Phase**
+1. **Converting**
 
-   - Configuration validation
-   - Resource allocation
-   - Directory structure preparation
+   - Converts MKV to temporary MP4 format
+   - Uses FFmpeg for initial conversion
 
-2. **Processing Phase**
+2. **Demuxing**
 
-   - Input validation
-   - Stream analysis
-   - Format conversion
-   - HDR profile preservation
+   - Separates audio and video streams
+   - Supports AAC/EC3 audio and H264/H265 video
 
-3. **Post-processing Phase**
-   - Quality verification
-   - Metadata preservation
-   - Resource cleanup
+3. **Muxing**
+   - Combines streams with Dolby Vision profile
+   - Applies DV Profile 5 with DVH1 flag
 
-## 📊 Status Display Format
+## 📊 Status Display
 
 ```
-========================================
-DVHEConverter - Processing Status
-========================================
-Input File    : example.mkv
-Progress      : [##########] 100%
-Status        : Converting
-Time Elapsed  : 00:02:34
-Estimated Time: 00:03:45
-CPU Usage     : 45%
-Memory Usage  : 1.2GB
+=========================================
+DVHEConverter - DV MKV to MP4 Conversion Tool
+=========================================
+
+Total Files : 1
+Completed   : 0
+Errors      : 0
+
+File Statuses:
+--------------
+1. example.mkv [Processing]
+
+Progress: [##########] 100%
 ```
 
 ## 📁 Output Structure
 
 ```
 output/
-├── completed/
-│   ├── video1_completed.mp4
-│   └── video2_completed.mp4
-├── logs/
-│   ├── conversion.log
-│   └── error.log
-└── temp/
-    └── processing/
+└── input_directory_name/      # For directory mode
+    └── filename_completed.mp4 # Converted files
+temp/
+└── input_directory_name/      # For directory mode
+    └── filename_temp.mp4     # Temporary files
 ```
 
-## 🔍 Error Codes
+## 🔍 Error Handling
 
-| Code | Description        | Resolution                                             |
-| ---- | ------------------ | ------------------------------------------------------ |
-| E001 | Invalid input file | Verify file exists and has correct permissions         |
-| E002 | Conversion failed  | Check FFmpeg installation and file integrity           |
-| E003 | Insufficient space | Free up disk space or specify alternate temp directory |
-| E004 | Demuxer error      | Update mp4demuxer_mac to latest version                |
+The script handles several error scenarios:
+
+- Invalid input file/directory
+- FFmpeg conversion failures
+- Demuxing/muxing errors
+- Missing audio/video streams
+- File permission issues
 
 ## 🛠 Troubleshooting
 
-### Common Issues
+Common error messages and solutions:
 
-1. **Conversion Fails with E002**
-
-   ```bash
-   # Verify FFmpeg installation
-   ffmpeg -version
-
-   # Check file permissions
-   chmod 644 input.mkv
-   ```
-
-2. **Performance Issues**
-   ```bash
-   # Optimize for performance
-   ./dvheconverter -i input.mkv --temp-dir /fast/ssd/path
-   ```
-
-## 📈 Performance Optimization
-
-- Use SSD for temporary directory
-- Process files in batches of optimal size
-- Monitor system resources during conversion
-
-## 🔒 Security Considerations
-
-- Input validation for all file paths
-- Secure temporary file handling
-- Resource limits enforcement
-- Permission verification
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+- "File does not exist" - Verify file path and permissions
+- "Failed to convert to MP4" - Check FFmpeg installation
+- "Demuxing failed" - Verify mp4demuxer_mac is working
+- "Audio or video files not found" - Check input file integrity
+- "Muxing failed" - Verify mp4muxer_mac is working
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📮 Support
-
-- Documentation: [Wiki](https://github.com/yourusername/dvheconverter/wiki)
-- Issues: [GitHub Issues](https://github.com/yourusername/dvheconverter/issues)
-- Discussions: [GitHub Discussions](https://github.com/yourusername/dvheconverter/discussions)
-
-## 🙏 Acknowledgments
-
-- FFmpeg team for the underlying conversion engine
-- Dolby Vision team for HDR specifications
-- Open source community for various contributions
+This project is licensed under the MIT License.
 
 ---
 
-**Note**: This tool is optimized for professional video processing workflows. For issues and feature requests, please refer to our [contribution guidelines](CONTRIBUTING.md).
+**Note**: This tool is designed for converting MKV files to MP4 format while preserving Dolby Vision HDR content.
