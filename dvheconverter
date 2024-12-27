@@ -2,7 +2,7 @@
 
 # Function to display usage instructions
 show_help() {
-    echo "Usage: ./dvheconverter [-i /path/to/file.mkv | --dir /path/to/mkv/files]"
+    echo "Usage: ./dvheconverter [-i /path/to/file.mkv | --dir /path/to/mkv/files] [--output-dir /path/to/output]"
     exit 1
 }
 
@@ -35,6 +35,10 @@ while [ $# -gt 0 ]; do
             input_dir="$2"
             shift 2
             ;;
+        --output-dir)
+            output_dir="$2"
+            shift 2
+            ;;
         *)
             echo "Unknown option: $1"
             show_help
@@ -47,6 +51,12 @@ if [ -z "$input_file" ] && [ -z "$input_dir" ]; then
     echo "Error: Either --dir or -i is required."
     show_help
 fi
+
+# Handle output directory (default to './output' if not specified)
+if [ -z "$output_dir" ]; then
+    output_dir="./output"
+fi
+
 # If input is a single file
 if [ -n "$input_file" ]; then
     if [ ! -f "$input_file" ]; then
@@ -55,7 +65,6 @@ if [ -n "$input_file" ]; then
     fi
     files=("$input_file")
     total=1
-    output_dir="./output"  # Store in the main output directory
 else
     # If input is a directory
     if [ ! -d "$input_dir" ]; then
@@ -76,10 +85,9 @@ else
     fi
 
     # Set output directory to a subdirectory with the name of the input directory
-    output_dir="./output/$(basename "$input_dir")"
+    output_dir="$output_dir/$(basename "$input_dir")"
     mkdir -p "$output_dir"  # Create the subdirectory
 fi
-
 
 completed=0
 errors=0
