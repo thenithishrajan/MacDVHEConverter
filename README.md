@@ -59,7 +59,6 @@ Create a configuration file at `~/.dvheconverter/config.json` (optional):
 {
   "output_directory": "/path/to/default/output",
   "temp_directory": "/path/to/temp",
-  "threads": 4,
   "logging_level": "info"
 }
 ```
@@ -85,10 +84,7 @@ Create a configuration file at `~/.dvheconverter/config.json` (optional):
 # Custom processing with specific options
 ./dvheconverter -i input.mkv \
   --output-dir /custom/output \
-  --temp-dir /custom/temp \
-  --threads 4 \
-  --preserve-metadata \
-  --force
+  --temp-dir /custom/temp
 ```
 
 ### Environment Variables
@@ -102,15 +98,12 @@ export DVHE_LOG_LEVEL="debug"
 
 ## 🎯 Command Line Interface
 
-| Option                | Description                          | Default  |
-| --------------------- | ------------------------------------ | -------- |
-| `-i, --input-file`    | Input MKV file path                  | -        |
-| `--dir`               | Input directory for batch processing | -        |
-| `--output-dir`        | Output directory path                | ./output |
-| `--temp-dir`          | Temporary processing directory       | ./temp   |
-| `--threads`           | Number of processing threads         | 2        |
-| `--force`             | Override existing files              | false    |
-| `--preserve-metadata` | Maintain original metadata           | true     |
+| Option             | Description                          | Default  |
+| ------------------ | ------------------------------------ | -------- |
+| `-i, --input-file` | Input MKV file path                  | -        |
+| `--dir`            | Input directory for batch processing | -        |
+| `--output-dir`     | Output directory path                | ./output |
+| `--temp-dir`       | Temporary processing directory       | ./temp   |
 
 ## 🔄 Processing Pipeline
 
@@ -187,13 +180,12 @@ output/
 2. **Performance Issues**
    ```bash
    # Optimize for performance
-   ./dvheconverter -i input.mkv --threads 4 --temp-dir /fast/ssd/path
+   ./dvheconverter -i input.mkv --temp-dir /fast/ssd/path
    ```
 
 ## 📈 Performance Optimization
 
 - Use SSD for temporary directory
-- Adjust thread count based on CPU cores
 - Process files in batches of optimal size
 - Monitor system resources during conversion
 
